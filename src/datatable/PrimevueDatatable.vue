@@ -43,7 +43,7 @@ const props = defineProps({
         default: 5,
     },
     headers: {
-        type: Array,
+        type: String,
         default: '',
     },
     data: {
