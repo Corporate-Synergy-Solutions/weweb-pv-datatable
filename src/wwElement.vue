@@ -1,50 +1,96 @@
 <template>
-    <DataTable
-        :key="updateComponent"
-        :data="data"
-        :paginator="content.paginator"
-        :rows="content.rows"
-        :size="content.size"
-        :showGridlines="content.showGridlines"
-        :stripedRows="content.stripedRows"
-        :headers="content.headers"
-    />
+    <div class="datatable-primevue-wrapper">
+        <p v-if="!data.length">No data</p>
+        <PVDataTable
+            v-else
+            :key="updateComponent"
+            :value="data"
+            :paginator="content.paginator"
+            :rows="content.rows"
+            :rowsPerPageOptions="[5, 10, 20, 50]"
+            :size="content.size"
+            :showGridlines="content.showGridlines"
+            :stripedRows="content.stripedRows"
+        >
+            <PVColumn v-for="col of columns" :key="col.field" :field="col.field" :header="col.header"></PVColumn>
+        </PVDataTable>
+    </div>
 </template>
 
-<script setup>
-import DataTable from './datatable/PrimevueDatatable.vue';
-import { ref, watch, onMounted } from 'vue';
+<script>
+import Aura from '@primevue/themes/aura';
+import PrimeVue from 'primevue/config';
+import PVDataTable from 'primevue/datatable';
+import PVColumn from 'primevue/column';
 
-const props = defineProps({
-    content: { type: Object, required: true },
-});
-
-const dummy = [
-    { attr: 'attr1', product: 'product1', cat: 'cat1', qty: 'qty1' },
-    { attr: 'attr2', product: 'product2', cat: 'cat2', qty: 'qty2' },
-    { attr: 'attr3', product: 'product3', cat: 'cat3', qty: 'qty3' },
-    { attr: 'attr4', product: 'product4', cat: 'cat4', qty: 'qty4' },
-    { attr: 'attr5', product: 'product5', cat: 'cat5', qty: 'qty5a' },
-];
-
-const updateComponent = ref(0);
-watch(
-    () => props.content,
-    () => {
-        updateValueDatatable();
-        updateComponent.value += 1;
+export default {
+    props: {
+        content: {
+            type: Object,
+            required: true,
+        },
     },
-    { deep: true }
-);
-
-const data = ref([]);
-onMounted(() => {
-    updateValueDatatable();
-});
-
-function updateValueDatatable() {
-    if (props.content.idComponentBind) {
-        data.value = wwLib.wwVariable.getValue(props.content.idComponentBind);
-    }
-}
+    components: {
+        PVDataTable,
+        PVColumn,
+    },
+    data() {
+        return {
+            columns: [],
+            data: [],
+        };
+    },
+    beforeCreate() {
+        this.$.appContext.app.use(PrimeVue, { theme: { preset: Aura } });
+        console.log(this.$.appContext.app);
+    },
+    computed: {
+        headersAndValue() {
+            return [this.content.headers, this.data];
+        },
+    },
+    watch: {
+        headersAndValue: {
+            handler() {
+                this.updateColumns();
+            },
+            deep: true,
+            immediate: true,
+        },
+        content: {
+            handler() {
+                if (this.content.idComponentBind) {
+                    this.data = wwLib.wwVariable.getValue(this.content.idComponentBind);
+                }
+                this.updateComponent += 1;
+            },
+            deep: true,
+            immediate: true,
+        },
+    },
+    methods: {
+        capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        },
+        updateColumns() {
+            const cols = [];
+            const headers = this.content.headers.split(',');
+            let idx = 0;
+            if (!this.data.length) return cols;
+            for (const property in this.data[0]) {
+                const header = headers[idx] || property;
+                cols.push({ field: property, header: this.capitalizeFirstLetter(header) });
+                idx += 1;
+            }
+            this.columns = cols;
+        },
+    },
+};
 </script>
+
+<style scoped>
+.datatable-primevue-wrapper {
+    position: relative;
+    box-sizing: border-box;
+}
+</style>
