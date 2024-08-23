@@ -30,10 +30,6 @@ export default {
             required: true,
         },
     },
-    components: {
-        PVDataTable,
-        PVColumn,
-    },
     data() {
         return {
             columns: [],
@@ -42,7 +38,8 @@ export default {
     },
     beforeCreate() {
         this.$.appContext.app.use(PrimeVue, { theme: { preset: Aura } });
-        console.log(this.$.appContext.app);
+        this.$.appContext.app.component('PVDataTable', PVDataTable);
+        this.$.appContext.app.component('PVColumn', PVColumn);
     },
     computed: {
         headersAndValue() {
