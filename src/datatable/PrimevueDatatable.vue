@@ -18,8 +18,6 @@
 
 <script setup>
 import './style.css';
-import PVDataTable from 'primevue/datatable';
-import PVColumn from 'primevue/column';
 import { watch, ref } from 'vue';
 const props = defineProps({
     paginator: {
@@ -78,8 +76,14 @@ function capitalizeFirstLetter(string) {
 <script>
 import Aura from '@primevue/themes/aura';
 import PrimeVue from 'primevue/config';
+import PVDataTable from 'primevue/datatable';
+import PVColumn from 'primevue/column';
 
 export default {
+    components: {
+        PVDataTable,
+        PVColumn,
+    },
     beforeCreate: function () {
         this.$.appContext.app.use(PrimeVue, { theme: { preset: Aura } });
     },
