@@ -19,7 +19,6 @@
 
 <script>
 import './datatable/style.css';
-import Aura from '@primevue/themes/aura';
 import PrimeVue from 'primevue/config';
 import PVDataTable from 'primevue/datatable';
 import PVColumn from 'primevue/column';
@@ -42,7 +41,7 @@ export default {
         };
     },
     beforeCreate() {
-        this.$.appContext.app.use(PrimeVue, { theme: { preset: Aura } });
+        this.$.appContext.app.use(PrimeVue, { theme: { unstyled: true } });
     },
     computed: {
         headersAndValue() {
